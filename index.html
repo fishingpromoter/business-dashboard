@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Business Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #21263a;
+    --border: #2e3347;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --accent4: #ffa94d;
+    --text: #e8eaf0;
+    --muted: #7a7f9a;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ââ LOGIN SCREEN ââ */
+  #login-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #login-screen.hidden { display: none; }
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 40px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+  }
+  .login-logo {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .login-logo span { color: var(--accent); }
+  .login-subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 36px;
+  }
+  .login-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: left;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .login-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-input.shake {
+    animation: shake 0.4s ease;
+    border-color: var(--red) !important;
+  }
+  .login-btn {
+    margin-top: 16px;
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    padding: 13px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .login-btn:hover { opacity: 0.88; }
+  .login-error {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--red);
+    min-height: 20px;
+  }
+  .login-hint {
+    margin-top: 28px;
+    font-size: 0.72rem;
+    color: var(--border);
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-8px); }
+    40%      { transform: translateX(8px); }
+    60%      { transform: translateX(-5px); }
+    80%      { transform: translateX(5px); }
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+  .logo span { color: var(--accent); }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  #live-date {
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  .edit-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .edit-btn:hover { opacity: 0.85; }
+
+  /* LAYOUT */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    gap: 28px;
+  }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* CARD GRID */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .card-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  /* METRIC CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .card-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .card-value {
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .card-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .card-change {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .change-up { background: rgba(34,197,94,0.15); color: var(--green); }
+  .change-down { background: rgba(239,68,68,0.15); color: var(--red); }
+  .change-neutral { background: rgba(122,127,154,0.15); color: var(--muted); }
+
+  /* SOCIAL CARD */
+  .social-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: center;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .social-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .social-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .ig-bg { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+  .fb-bg { background: #1877f2; }
+  .li-bg { background: #0a66c2; }
+  .tw-bg { background: #000; }
+  .social-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .social-stats {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .social-stat { display: flex; flex-direction: column; gap: 2px; }
+  .social-stat-val { font-size: 1.2rem; font-weight: 700; }
+  .social-stat-lbl { font-size: 0.7rem; color: var(--muted); }
+
+  /* COST TOTAL CARD */
+  .total-card {
+    background: linear-gradient(135deg, var(--accent) 0%, #9c94ff 100%);
+    border-radius: 14px;
+    padding: 24px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .total-card .card-label { color: rgba(255,255,255,0.75); }
+  .total-card .card-value { font-size: 2.4rem; color: #fff; }
+  .total-card .card-sub { color: rgba(255,255,255,0.65); }
+
+  /* GHL CARD */
+  .ghl-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+  }
+  .ghl-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .ghl-badge {
+    background: linear-gradient(135deg, #00d4aa, #0098ff);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  .ghl-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .ghl-stat {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .ghl-stat-val { font-size: 1.6rem; font-weight: 700; margin-bottom: 4px; }
+  .ghl-stat-lbl { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* EDIT MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    width: 90%;
+    max-width: 640px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal h2 {
+    font-size: 1.2rem;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  .form-section { margin-bottom: 24px; }
+  .form-section h3 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+  .form-group input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus { border-color: var(--accent); }
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+  }
+  .btn-cancel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  .btn-save {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    padding: 10px 28px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-save:hover { opacity: 0.88; }
+
+  /* CHART WRAPPER */
+  .chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .chart-card h3 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+  }
+
+  /* RESPONSIVE */
+  @media(max-width: 768px) {
+    header { padding: 14px 16px; }
+    .main { padding: 16px; }
+    .chart-row { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .ghl-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ââ LOGIN SCREEN ââ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Business<span>Hub</span></div>
+    <div class="login-subtitle">Your daily business command center</div>
+    <label class="login-label" for="pw-input">Password</label>
+    <input
+      type="password"
+      id="pw-input"
+      class="login-input"
+      placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
+      onkeydown="if(event.key==='Enter') tryLogin()"
+      autocomplete="current-password"
+    />
+    <button class="login-btn" onclick="tryLogin()">Unlock Dashboard</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-hint">To change your password, open the file and update <code>DASHBOARD_PASSWORD</code></div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">Business<span>Hub</span></div>
+  <div class="header-right">
+    <div id="live-date"></div>
+    <button class="edit-btn" onclick="openModal()">âï¸ Update Metrics</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- ââ API CREDITS & COSTS ââ -->
+  <div>
+    <div class="section-title">ð¤ API Credits & Costs</div>
+    <div class="card-grid">
+
+      <div class="card">
+        <span class="card-icon">ð£</span>
+        <div class="card-label">Anthropic / Claude</div>
+        <div class="card-value" id="d-claude-spend">$0.00</div>
+        <div class="card-sub" id="d-claude-tokens">0 tokens used</div>
+        <div class="card-change change-neutral" id="d-claude-note">This month</div>
+      </div>
+
+      <div class="card">
+        <span class="card-icon">ð¢</span>
+        <div class="card-label">OpenAI</div>
+        <div class="card-value" id="d-oai-spend">$0.00</div>
+        <div class="card-sub" id="d-oai-tokens">0 tokens used</div>
+        <div class="card-change change-neutral" id="d-oai-note">This month</div>
+      </div>
+
+      <div class="card">
+        <span class="card-icon">â¡</span>
+        <div class="card-label">Other AI APIs</div>
+        <div class="card-value" id="d-other-spend">$0.00</div>
+        <div class="card-sub" id="d-other-note">e.g. ElevenLabs, Midjourney</div>
+        <div class="card-change change-neutral">This month</div>
+      </div>
+
+      <div class="total-card">
+        <div>
+          <div class="card-label">ð° Total Monthly Spend</div>
+          <div class="card-value" id="d-total-spend">$0.00</div>
+          <div class="card-sub" id="d-budget-remaining">Enter budget to track remaining</div>
+        </div>
+        <div style="margin-top:12px">
+          <div style="background:rgba(255,255,255,0.2);border-radius:6px;height:6px;overflow:hidden">
+            <div id="budget-bar" style="background:#fff;height:100%;width:0%;border-radius:6px;transition:width 0.5s"></div>
+          </div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.65);margin-top:6px" id="d-budget-pct">0% of budget used</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ââ SOCIAL MEDIA ââ -->
+  <div>
+    <div class="section-title">ð± Social Media</div>
+    <div class="card-grid-2">
+
+      <div class="social-card">
+        <div class="social-icon-wrap ig-bg">ð¸</div>
+        <div>
+          <div class="social-name">Instagram</div>
+          <div class="social-stats">
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-ig-followers">0</span>
+              <span class="social-stat-lbl">Followers</span>
+            </div>
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-ig-likes">0</span>
+              <span class="social-stat-lbl">Likes today</span>
+            </div>
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-ig-reach">0</span>
+              <span class="social-stat-lbl">Reach</span>
+            </div>
+     .    </div>
+        </div>
+      </div>
+
+      <div class="social-card">
+        <div class="social-icon-wrap fb-bg">ð¤</div>
+        <div>
+          <div class="social-name">Facebook</div>
+          <div class="social-stats">
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-fb-followers">0</span>
+              <span class="social-stat-lbl">Followers</span>
+            </div>
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-fb-likes">0</span>
+              <span class="social-stat-lbl">Page likes</span>
+            </div>
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-fb-reach">0</span>
+              <span class="social-stat-lbl">Reach</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="social-card">
+        <div class="social-icon-wrap li-bg">ð¼</div>
+        <div>
+          <div class="social-name">LinkedIn</div>
+          <div class="social-stats">
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-li-followers">0</span>
+              <span class="social-stat-lbl">Followers</span>
+            </div>
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-li-impressions">0</span>
+              <span class="social-stat-lbl">Impressions</span>
+            </div>
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-li-reactions">0</span>
+              <span class="social-stat-lbl">Reactions</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="social-card">
+        <div class="social-icon-wrap tw-bg">ð</div>
+        <div>
+          <div class="social-name">X / Twitter</div>
+          <div class="social-stats">
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-tw-followers">0</span>
+              <span class="social-stat-lbl">Followers</span>
+            </div>
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-tw-impressions">0</span>
+              <span class="social-stat-lbl">Impressions</span>
+            </div>
+            <div class="social-stat">
+              <span class="social-stat-val" id="d-tw-likes">0</span>
+              <span class="social-stat-lbl">Likes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ââ GHL ââ -->
+  <div>
+    <div class="section-title">ð GoHighLevel (GHL)</div>
+    <div class="card-grid-2">
+
+      <div class="ghl-card">
+        <div class="ghl-header">
+          <span style="font-size:1.3rem">ð¥</span>
+          <span style="font-size:1rem;font-weight:700">Leads &amp; Contacts</span>
+          <span class="ghl-badge">GHL</span>
+        </div>
+        <div class="ghl-grid">
+          <div class="ghl-stat">
+            <div class="ghl-stat-val" id="d-ghl-new-leads">0</div>
+            <div class="ghl-stat-lbl">New Leads Today</div>
+          </div>
+          <div class="ghl-stat">
+            <div class="ghl-stat-val" id="d-ghl-month-leads">0</div>
+            <div class="ghl-stat-lbl">Leads This Month</div>
+          </div>
+          <div class="ghl-stat">
+            <div class="ghl-stat-val" id="d-ghl-total-contacts">0</div>
+            <div class="ghl-stat-lbl">Total Contacts</div>
+          </div>
+          <div class="ghl-stat">
+            <div class="ghl-stat-val" id="d-ghl-opps">0</div>
+            <div class="ghl-stat-lbl">Open Opportunities</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ghl-card">
+        <div class="ghl-header">
+          <span style="font-size:1.3rem">ð¬</span>
+          <span style="font-size:1rem;font-weight:700">Conversations</span>
+          <span class="ghl-badge">GHL</span>
+        </div>
+        <div class="ghl-grid">
+          <div class="ghl-stat">
+            <div class="ghl-stat-val" id="d-ghl-new-convs">0</div>
+            <div class="ghl-stat-lbl">New Convs Today</div>
+          </div>
+          <div class="ghl-stat">
+            <div class="ghl-stat-val" id="d-ghl-unread">0</div>
+            <div class="ghl-stat-lbl">Unread Messages</div>
+          </div>
+          <div class="ghl-stat">
+            <div class="ghl-stat-val" id="d-ghl-sms">0</div>
+            <div class="ghl-stat-lbl">SMS Sent Today</div>
+          </div>
+          <div class="ghl-stat-val" id="d-ghl-emails">0</div>
+            <div class="ghl-stat-lbl">Emails Sent Today</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ââ CHARTS ââ -->
+  <div>
+    <div class="section-title">ð Weekly Trends</div>
+    <div class="chart-row">
+      <div class="chart-card">
+        <h3>API Spend â Last 7 Days</h3>
+        <canvas id="spendChart" height="160"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Social Followers â Last 7 Days</h3>
+        <canvas id="followersChart" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ââ EDIT MODAL ââ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>âï¸ Update Today's Metrics</h2>
+
+    <div class="form-section">
+      <h3>API Credits &amp; Costs</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Claude Spend ($)</label>
+          <input type="number" id="f-claude-spend" placeholder="0.00" step="0.01"/>
+        </div>
+        <div class="form-group">
+          <label>Claude Tokens Used</label>
+          <input type="number" id="f-claude-tokens" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label>OpenAI Spend ($)</label>
+          <input type="number" id="f-oai-spend" placeholder="0.00" step="0.01"/>
+        </div>
+        <div class="form-group">
+          <label>OpenAI Tokens Used</label>
+          <input type="number" id="f-oai-tokens" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label>Other API Spend ($)</label>
+          <input type="number" id="f-other-spend" placeholder="0.00" step="0.01"/>
+        </div>
+        <div class="form-group">
+          <label>Monthly Budget ($)</label>
+          <input type="number" id="f-budget" placeholder="500"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Instagram</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>Followers</label><input type="number" id="f-ig-followers" placeholder="0"/></div>
+        <div class="form-group"><label>Likes Today</label><input type="number" id="f-ig-likes" placeholder="0"/></div>
+        <div class="form-group"><label>Reach</label><input type="number" id="f-ig-reach" placeholder="0"/></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Facebook</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>Followers</label><input type="number" id="f-fb-followers" placeholder="0"/></div>
+        <div class="form-group"><label>Page Likes</label><input type="number" id="f-fb-likes" placeholder="0"/></div>
+        <div class="form-group"><label>Reach</label><input type="number" id="f-fb-reach" placeholder="0"/></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>LinkedIn</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>Followers</label><input type="number" id="f-li-followers" placeholder="0"/></div>
+        <div class="form-group"><label>Impressions</label><input type="number" id="f-li-impressions" placeholder="0"/></div>
+        <div class="form-group"><label>Reactions</label><input type="number" id="f-li-reactions" placeholder="0"/></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>X / Twitter</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>Followers</label><input type="number" id="f-tw-followers" placeholder="0"/></div>
+        <div class="form-group"><label>Impressions</label><input type="number" id="f-tw-impressions" placeholder="0"/></div>
+        <div class="form-group"><label>Likes</label><input type="number" id="f-tw-likes" placeholder="0"/></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>GHL â Leads &amp; Contacts</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>New Leads Today</label><input type="number" id="f-ghl-new-leads" placeholder="0"/></div>
+        <div class="form-group"><label>Leads This Month</label><input type="number" id="f-ghl-month-leads" placeholder="0"/></div>
+        <div class="form-group"><label>Total Contacts</label><input type="number" id="f-ghl-total-contacts" placeholder="0"/></div>
+        <div class="form-group"><label>Open Opportunities</label><input type="number" id="f-ghl-opps" placeholder="0"/></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>GHL â Conversations</h3>
+      <div class="form-grid">
+        <div class="form-group"><label>New Convs Today</label><input type="number" id="f-ghl-new-convs" placeholder="0"/></div>
+        <div class="form-group"><label>Unread Messages</label><input type="number" id="f-ghl-unread" placeholder="0"/></div>
+        <div class="form-group"><label>SMS Sent Today</label><input type="number" id="f-ghl-sms" placeholder="0"/></div>
+        <div class="form-group"><label>Emails Sent Today</label><input type="number" id="f-ghl-emails" placeholder="0"/></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveMetrics()">Save &amp; Update</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ââ PASSWORD ââ
+// Change this to whatever password you want:
+const DASHBOARD_PASSWORD = 'business2024';
+
+function tryLogin() {
+  const input = document.getElementById('pw-input');
+  const error = document.getElementById('login-error');
+  if (input.value === DASHBOARD_PASSWORD) {
+    document.getElementById('login-screen').classList.add('hidden');
+    error.textContent = '';
+  } else {
+    error.textContent = 'Incorrect password. Please try again.';
+    input.classList.add('shake');
+    input.value = '';
+    setTimeout(() => input.classList.remove('shake'), 500);
+    input.focus();
+  }
+}
+
+// Focus password field on load
+window.addEventListener('load', () => {
+  document.getElementById('pw-input').focus();
+});
+
+// ââ DATE ââ
+function updateDate() {
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  document.getElementById('live-date').textContent = now.toLocaleDateString('en-US', opts);
+}
+updateDate();
+
+// ââ STATE (in-memory) ââ
+const state = {
+  claudeSpend: 0, claudeTokens: 0,
+  oaiSpend: 0, oaiTokens: 0,
+  otherSpend: 0, budget: 0,
+  igFollowers: 0, igLikes: 0, igReach: 0,
+  fbFollowers: 0, fbLikes: 0, fbReach: 0,
+  liFollowers: 0, liImpressions: 0, liReactions: 0,
+  twFollowers: 0, twImpressions: 0, twLikes: 0,
+  ghlNewLeads: 0, ghlMonthLeads: 0, ghlTotalContacts: 0, ghlOpps: 0,
+  ghlNewConvs: 0, ghlUnread: 0, ghlSms: 0, ghlEmails: 0,
+  // Week history (last 7 days spend totals â seed with 0s)
+  weekSpend: [0,0,0,0,0,0,0],
+  weekFollowers: [0,0,0,0,0,0,0],
+};
+
+function fmt(n) { return parseFloat(n||0).toLocaleString(); }
+function fmtDollar(n) { return '$' + parseFloat(n||0).toFixed(2); }
+
+function renderDashboard() {
+  // API
+  set('d-claude-spend', fmtDollar(state.claudeSpend));
+  set('d-claude-tokens', fmt(state.claudeTokens) + ' tokens used');
+  set('d-oai-spend', fmtDollar(state.oaiSpend));
+  set('d-oai-tokens', fmt(state.oaiTokens) + ' tokens used');
+  set('d-other-spend', fmtDollar(state.otherSpend));
+  const total = +state.claudeSpend + +state.oaiSpend + +state.otherSpend;
+  set('d-total-spend', fmtDollar(total));
+  if (state.budget > 0) {
+    const pct = Math.min(100, (total / state.budget * 100)).toFixed(1);
+    const rem = Math.max(0, state.budget - total);
+    set('d-budget-remaining', '$' + rem.toFixed(2) + ' remaining of $' + parseFloat(state.budget).toFixed(2) + ' budget');
+    set('d-budget-pct', pct + '% of budget used');
+    document.getElementById('budget-bar').style.width = pct + '%';
+  }
+  // Social
+  set('d-ig-followers', fmt(state.igFollowers));
+  set('d-ig-likes', fmt(state.igLikes));
+  set('d-ig-reach', fmt(state.igReach));
+  set('d-fb-followers', fmt(state.fbFollowers));
+  set('d-fb-likes', fmt(state.fbLikes));
+  set('d-fb-reach', fmt(state.fbReach));
+  set('d-li-followers', fmt(state.liFollowers));
+  set('d-li-impressions', fmt(state.liImpressions));
+  set('d-li-reactions', fmt(state.liReactions));
+  set('d-tw-followers', fmt(state.twFollowers));
+  set('d-tw-impressions', fmt(state.twImpressions));
+  set('d-tw-likes', fmt(state.twLikes));
+  // GHL
+  set('d-ghl-new-leads', fmt(state.ghlNewLeads));
+  set('d-ghl-month-leads', fmt(state.ghlMonthLeads));
+  set('d-ghl-total-contacts', fmt(state.ghlTotalContacts));
+  set('d-ghl-opps', fmt(state.ghlOpps));
+  set('d-ghl-new-convs', fmt(state.ghlNewConvs));
+  set('d-ghl-unread', fmt(state.ghlUnread));
+  set('d-ghl-sms', fmt(state.ghlSms));
+  set('d-ghl-emails', fmt(state.ghlEmails));
+}
+
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+// ââ MODAL ââ
+function openModal() {
+  fillForm();
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+function fillForm() {
+  const map = {
+    'f-claude-spend': 'claudeSpend', 'f-claude-tokens': 'claudeTokens',
+    'f-oai-spend': 'oaiSpend', 'f-oai-tokens': 'oaiTokens',
+    'f-other-spend': 'otherSpend', 'f-budget': 'budget',
+    'f-ig-followers': 'igFollowers', 'f-ig-likes': 'igLikes', 'f-ig-reach': 'igReach',
+    'f-fb-followers': 'fbFollowers', 'f-fb-likes': 'fbLikes', 'f-fb-reach': 'fbReach',
+    'f-li-followers': 'liFollowers', 'f-li-impressions': 'liImpressions', 'f-li-reactions': 'liReactions',
+    'f-tw-followers': 'twFollowers', 'f-tw-impressions': 'twImpressions', 'f-tw-likes': 'twLikes',
+    'f-ghl-new-leads': 'ghlNewLeads', 'f-ghl-month-leads': 'ghlMonthLeads',
+    'f-ghl-total-contacts': 'ghlTotalContacts', 'f-ghl-opps': 'ghlOpps',
+    'f-ghl-new-convs': 'ghlNewConvs', 'f-ghl-unread': 'ghlUnread',
+    'f-ghl-sms': 'ghlSms', 'f-ghl-emails': 'ghlEmails',
+  };
+  for (const [id, key] of Object.entries(map)) {
+    const el = document.getElementById(id);
+    if (el && state[key]) el.value = state[key];
+  }
+}
+function saveMetrics() {
+  const map = {
+    'f-claude-spend': 'claudeSpend', 'f-claude-tokens': 'claudeTokens',
+    'f-oai-spend': 'oaiSpend', 'f-oai-tokens': 'oaiTokens',
+    'f-other-spend': 'otherSpend', 'f-budget': 'budget',
+    'f-ig-followers': 'igFollowers', 'f-ig-likes': 'igLikes', 'f-ig-reach': 'igReach',
+    'f-fb-followers': 'fbFollowers', 'f-fb-likes': 'fbLikes', 'f-fb-reach': 'fbReach',
+    'f-li-followers': 'liFollowers', 'f-li-impressions': 'liImpressions', 'f-li-reactions': 'liReactions',
+    'f-tw-followers': 'twFollowers', 'f-tw-impressions': 'twImpressions', 'f-tw-likes': 'twLikes',
+    'f-ghl-new-leads': 'ghlNewLeads', 'f-ghl-month-leads': 'ghlMonthLeads',
+    'f-ghl-total-contacts': 'ghlTotalContacts', 'f-ghl-opps': 'ghlOpps',
+    'f-ghl-new-convs': 'ghlNewConvs', 'f-ghl-unread': 'ghlUnread',
+    'f-ghl-sms': 'ghlSms', 'f-ghl-emails': 'ghlEmails',
+  };
+  for (const [id, key] of Object.entries(map)) {
+    const el = document.getElementById(id);
+    if (el) state[key] = el.value;
+  }
+  // Update today's chart entry
+  const total = +state.claudeSpend + +state.oaiSpend + +state.otherSpend;
+  state.weekSpend[6] = total;
+  const totalFollowers = +state.igFollowers + +state.fbFollowers + +state.liFollowers + +state.twFollowers;
+  state.weekFollowers[6] = totalFollowers;
+  renderDashboard();
+  updateCharts();
+  closeModal();
+}
+
+// ââ CHARTS ââ
+const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+let spendChart, followersChart;
+
+function initCharts() {
+  const spendCtx = document.getElementById('spendChart').getContext('2d');
+  spendChart = new Chart(spendCtx, {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [{
+        label: 'Total API Spend',
+        data: state.weekSpend,
+        borderColor: '#6c63ff',
+        backgroundColor: 'rgba(108,99,255,0.12)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#6c63ff',
+        pointRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#2e3347' }, ticks: { color: '#7a7f9a' } },
+        y: { grid: { color: '#2e3347' }, ticks: { color: '#7a7f9a', callback: v => '$'+v } }
+      }
+    }
+  });
+
+  const follCtx = document.getElementById('followersChart').getContext('2d');
+  followersChart = new Chart(follCtx, {
+    type: 'bar',
+    data: {
+      labels: days,
+      datasets: [{
+        label: 'Total Followers',
+        data: state.weekFollowers,
+        backgroundColor: 'rgba(0,212,170,0.7)',
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#2e3347' }, ticks: { color: '#7a7f9a' } },
+        y: { grid: { color: '#2e3347' }, ticks: { color: '#7a7f9a' } }
+      }
+    }
+  });
+}
+
+function updateCharts() {
+  spendChart.data.datasets[0].data = [...state.weekSpend];
+  spendChart.update();
+  followersChart.data.datasets[0].data = [...state.weekFollowers];
+  followersChart.update();
+}
+
+// ââ CLOSE MODAL ON OVERLAY CLICK ââ
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ââ INIT ââ
+renderDashboard();
+initCharts();
+</script>
+</body>
+</html>
