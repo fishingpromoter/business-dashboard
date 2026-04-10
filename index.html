@@ -1032,6 +1032,32 @@ document.getElementById('modal').addEventListener('click', function(e) {
 // ââ INIT ââ
 renderDashboard();
 initCharts();
+
+
+// ── LIVE DATA FETCH ──
+async function fetchLiveData() {
+  try {
+    const [clRes, oaRes, ghRes] = await Promise.allSettled([
+      fetch('/api/anthropic').then(r=>r.json()).catch(e=>({error:e.message})),
+      fetch('/api/openai').then(r=>r.json()).catch(e=>({error:e.message})),
+      fetch('/api/ghl').then(r=>r.json()).catch(e=>({error:e.message})),
+    ]);
+    const cl = clRes.value||{}, oa = oaRes.value||{}, gh = ghRes.value||{};
+    if (!cl.error && cl.cost_usd!=null) { state.claudeSpend=+cl.cost_usd.toFixed(4); state.claudeTokens=cl.total_tokens||0; }
+    if (!oa.error && oa.cost_usd!=null) { state.oaiSpend=+oa.cost_usd.toFixed(4); }
+    if (!gh.error) {
+      state.ghlTotalContacts=gh.totalContacts||0;
+      state.ghlNewLeads=gh.newLeadsToday||0;
+      state.ghlMonthLeads=gh.monthLeads||0;
+      state.ghlNewConvs=gh.newConvsToday||0;
+      state.ghlUnread=gh.unread||0;
+    }
+    renderDashboard();
+    const ts = document.getElementById('live-ts');
+    if (ts) ts.textContent = 'Live data as of '+new Date().toLocaleTimeString();
+  } catch(e) { console.error('fetchLiveData:',e); }
+}
+fetchLiveData();
 </script>
 </body>
 </html>
