@@ -747,6 +747,15 @@
       </div>
     </div>
 
+      <div class="api-card">
+        <div class="api-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🔀</div>
+        <div>
+          <div class="api-name">OpenRouter</div>
+          <div class="api-spend" id="d-or-spend">$0.00</div>
+          <div class="api-tokens" id="d-or-credits">0 credits used</div>
+        </div>
+      </div>
+
     <div class="form-section">
       <h3>Instagram</h3>
       <div class="form-grid">
@@ -848,6 +857,7 @@ const state = {
   claudeSpend: 0, claudeTokens: 0,
   oaiSpend: 0, oaiTokens: 0,
   otherSpend: 0, budget: 0,
+  orSpend: 0, orCredits: 0,
   igFollowers: 0, igLikes: 0, igReach: 0,
   fbFollowers: 0, fbLikes: 0, fbReach: 0,
   liFollowers: 0, liImpressions: 0, liReactions: 0,
@@ -869,7 +879,9 @@ function renderDashboard() {
   set('d-oai-spend', fmtDollar(state.oaiSpend));
   set('d-oai-tokens', fmt(state.oaiTokens) + ' tokens used');
   set('d-other-spend', fmtDollar(state.otherSpend));
-  const total = +state.claudeSpend + +state.oaiSpend + +state.otherSpend;
+  set('d-or-spend', fmtDollar(state.orSpend));
+  set('d-or-credits', fmt(state.orCredits) + ' credits used');
+  const total = +state.claudeSpend + +state.oaiSpend + +state.otherSpend + +state.orSpend;
   set('d-total-spend', fmtDollar(total));
   if (state.budget > 0) {
     const pct = Math.min(100, (total / state.budget * 100)).toFixed(1);
@@ -1037,12 +1049,13 @@ initCharts();
 // ── LIVE DATA FETCH ──
 async function fetchLiveData() {
   try {
-    const [clRes, oaRes, ghRes] = await Promise.allSettled([
+    const [clRes, oaRes, ghRes, orRes] = await Promise.allSettled([
       fetch('/api/anthropic').then(r=>r.json()).catch(e=>({error:e.message})),
       fetch('/api/openai').then(r=>r.json()).catch(e=>({error:e.message})),
       fetch('/api/ghl').then(r=>r.json()).catch(e=>({error:e.message})),
+      fetch('/api/openrouter').then(r=>r.json()).catch(e=>({error:e.message})),
     ]);
-    const cl = clRes.value||{}, oa = oaRes.value||{}, gh = ghRes.value||{};
+    const cl = clRes.value||{}, oa = oaRes.value||{}, gh = ghRes.value||{}, or = orRes.value||{};
     if (!cl.error && cl.cost_usd!=null) { state.claudeSpend=+cl.cost_usd.toFixed(4); state.claudeTokens=cl.total_tokens||0; }
     if (!oa.error && oa.cost_usd!=null) { state.oaiSpend=+oa.cost_usd.toFixed(4); }
     if (!gh.error) {
@@ -1052,6 +1065,7 @@ async function fetchLiveData() {
       state.ghlNewConvs=gh.newConvsToday||0;
       state.ghlUnread=gh.unread||0;
     }
+    if (!or.error && or.cost_usd!=null) { state.orSpend=+or.cost_usd.toFixed(4); state.orCredits=or.usage_credits||0; }
     renderDashboard();
     const ts = document.getElementById('live-ts');
     if (ts) ts.textContent = 'Live data as of '+new Date().toLocaleTimeString();
