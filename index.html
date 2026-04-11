@@ -545,6 +545,42 @@
   </div>
 
   <!-- ââ SOCIAL MEDIA ââ -->
+  <!-- ── INFRASTRUCTURE ── -->
+  <div>
+    <div class="section-title">🏗️ Infrastructure</div>
+    <div class="card-grid-2">
+
+      <div class="ghl-card">
+        <div class="ghl-header">
+          <span style="font-size:1.3rem">🗄️</span>
+          <span style="font-size:1rem;font-weight:700">Supabase</span>
+          <span class="ghl-badge">DB</span>
+        </div>
+        <div class="ghl-grid">
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-users">—</div><div class="ghl-stat-lbl">Auth Users</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-buckets">—</div><div class="ghl-stat-lbl">Storage Buckets</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-rows">—</div><div class="ghl-stat-lbl">DB Rows (est.)</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-api">—</div><div class="ghl-stat-lbl">API Requests</div></div>
+        </div>
+      </div>
+
+      <div class="ghl-card">
+        <div class="ghl-header">
+          <span style="font-size:1.3rem">☁️</span>
+          <span style="font-size:1rem;font-weight:700">Google Cloud</span>
+          <span class="ghl-badge" style="background:#4285f4">GCP</span>
+        </div>
+        <div class="ghl-grid">
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-places">—</div><div class="ghl-stat-lbl">Places API Reqs</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-maps">—</div><div class="ghl-stat-lbl">Maps API Reqs</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-cost">—</div><div class="ghl-stat-lbl">Monthly Spend</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-status">—</div><div class="ghl-stat-lbl">Billing Status</div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <div>
     <div class="section-title">ð± Social Media</div>
     <div class="card-grid-2">
@@ -858,6 +894,8 @@ const state = {
   oaiSpend: 0, oaiTokens: 0,
   otherSpend: 0, budget: 0,
   orSpend: 0, orCredits: 0,
+  sbUsers: 0, sbBuckets: 0, sbRows: null, sbApi: null,
+  gcPlaces: null, gcMaps: null, gcCost: null, gcStatus: null,
   igFollowers: 0, igLikes: 0, igReach: 0,
   fbFollowers: 0, fbLikes: 0, fbReach: 0,
   liFollowers: 0, liImpressions: 0, liReactions: 0,
@@ -881,6 +919,16 @@ function renderDashboard() {
   set('d-other-spend', fmtDollar(state.otherSpend));
   set('d-or-spend', fmtDollar(state.orSpend));
   set('d-or-credits', fmt(state.orCredits) + ' credits used');
+  // Supabase
+  set('d-sb-users', state.sbUsers != null ? fmt(state.sbUsers) : '—');
+  set('d-sb-buckets', state.sbBuckets != null ? fmt(state.sbBuckets) : '—');
+  set('d-sb-rows', state.sbRows != null ? fmt(state.sbRows) : '—');
+  set('d-sb-api', state.sbApi != null ? fmt(state.sbApi) : '—');
+  // Google Cloud
+  set('d-gc-places', state.gcPlaces != null ? fmt(state.gcPlaces) : '—');
+  set('d-gc-maps', state.gcMaps != null ? fmt(state.gcMaps) : '—');
+  set('d-gc-cost', state.gcCost != null ? '$'+parseFloat(state.gcCost).toFixed(2) : '—');
+  set('d-gc-status', state.gcStatus || '—');
   const total = +state.claudeSpend + +state.oaiSpend + +state.otherSpend + +state.orSpend;
   set('d-total-spend', fmtDollar(total));
   if (state.budget > 0) {
@@ -1049,13 +1097,15 @@ initCharts();
 // ── LIVE DATA FETCH ──
 async function fetchLiveData() {
   try {
-    const [clRes, oaRes, ghRes, orRes] = await Promise.allSettled([
+    const [clRes, oaRes, ghRes, orRes, sbRes, gcRes] = await Promise.allSettled([
       fetch('/api/anthropic').then(r=>r.json()).catch(e=>({error:e.message})),
       fetch('/api/openai').then(r=>r.json()).catch(e=>({error:e.message})),
       fetch('/api/ghl').then(r=>r.json()).catch(e=>({error:e.message})),
       fetch('/api/openrouter').then(r=>r.json()).catch(e=>({error:e.message})),
+      fetch('/api/supabase').then(r=>r.json()).catch(e=>({error:e.message})),
+      fetch('/api/google').then(r=>r.json()).catch(e=>({error:e.message})),
     ]);
-    const cl = clRes.value||{}, oa = oaRes.value||{}, gh = ghRes.value||{}, or = orRes.value||{};
+    const cl = clRes.value||{}, oa = oaRes.value||{}, gh = ghRes.value||{}, or = orRes.value||{}, sb = sbRes.value||{}, gc = gcRes.value||{};
     if (!cl.error && cl.cost_usd!=null) { state.claudeSpend=+cl.cost_usd.toFixed(4); state.claudeTokens=cl.total_tokens||0; }
     if (!oa.error && oa.cost_usd!=null) { state.oaiSpend=+oa.cost_usd.toFixed(4); }
     if (!gh.error) {
@@ -1066,6 +1116,8 @@ async function fetchLiveData() {
       state.ghlUnread=gh.unread||0;
     }
     if (!or.error && or.cost_usd!=null) { state.orSpend=+or.cost_usd.toFixed(4); state.orCredits=or.usage_credits||0; }
+    if (sb && !sb.error) { state.sbUsers=sb.totalUsers??0; state.sbBuckets=sb.bucketCount??0; state.sbRows=sb.totalRows??null; state.sbApi=sb.apiRequests??null; }
+    if (gc && !gc.error) { state.gcPlaces=gc.placesRequests??null; state.gcMaps=gc.mapsRequests??null; state.gcCost=gc.monthlyCost??null; state.gcStatus=gc.billingEnabled?'Active':(gc.note?'Setup needed':'—'); }
     renderDashboard();
     const ts = document.getElementById('live-ts');
     if (ts) ts.textContent = 'Live data as of '+new Date().toLocaleTimeString();
