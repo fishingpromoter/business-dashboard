@@ -3,13 +3,18 @@ module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
 
   const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set in Vercel env vars' });
+  if (!key) {
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set in Vercel env vars' });
+  }
 
   try {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const endOfDay = now.toISOString();
 
+    // NOTE: This endpoint requires an Anthropic Admin API key, not a regular key.
+    // In the Anthropic Console → Settings → API Keys, create a key under "Admin Keys".
+    // Regular user API keys will receive a 403 here.
     const resp = await fetch(
       `https://api.anthropic.com/v1/usage/messages?start_time=${encodeURIComponent(startOfMonth)}&end_time=${encodeURIComponent(endOfDay)}&limit=100`,
       { headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' } }
@@ -17,6 +22,13 @@ module.exports = async function handler(req, res) {
 
     if (!resp.ok) {
       const errText = await resp.text();
+      if (resp.status === 403 || resp.status === 401) {
+        return res.status(resp.status).json({
+          error: `Anthropic ${resp.status}: Access denied`,
+          note: 'The usage API requires an Admin API key. In the Anthropic Console → Settings → API Keys, look for "Admin Keys" (separate from regular API keys).',
+          raw: errText,
+        });
+      }
       return res.status(resp.status).json({ error: `Anthropic ${resp.status}: ${errText}` });
     }
 
@@ -24,11 +36,17 @@ module.exports = async function handler(req, res) {
     const entries = data.data || [];
     let inputTokens = 0, outputTokens = 0, costUsd = 0;
     for (const e of entries) {
-      inputTokens += e.input_tokens || 0;
+      inputTokens  += e.input_tokens  || 0;
       outputTokens += e.output_tokens || 0;
-      costUsd += e.cost_usd || 0;
+      costUsd      += e.cost_usd      || 0;
     }
-    return res.json({ input_tokens: inputTokens, output_tokens: outputTokens, total_tokens: inputTokens + outputTokens, cost_usd: +costUsd.toFixed(4) });
+
+    return res.json({
+      input_tokens:  inputTokens,
+      output_tokens: outputTokens,
+      total_tokens:  inputTokens + outputTokens,
+      cost_usd:      +costUsd.toFixed(4),
+    });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }

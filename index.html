@@ -29,7 +29,7 @@
     min-height: 100vh;
   }
 
-  /* ââ LOGIN SCREEN ââ */
+  /* LOGIN SCREEN */
   #login-screen {
     position: fixed;
     inset: 0;
@@ -217,11 +217,20 @@
     transition: border-color 0.2s, transform 0.15s;
   }
   .card:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .card-icon {
-    font-size: 1.5rem;
+  .card-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
     margin-bottom: 10px;
-    display: block;
   }
+  .badge-purple { background: rgba(108,99,255,0.2); color: var(--accent); }
+  .badge-green  { background: rgba(0,212,170,0.2); color: var(--accent2); }
+  .badge-blue   { background: rgba(59,130,246,0.2); color: #60a5fa; }
+  .badge-yellow { background: rgba(234,179,8,0.2); color: var(--yellow); }
   .card-label {
     font-size: 0.75rem;
     color: var(--muted);
@@ -274,7 +283,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #fff;
     flex-shrink: 0;
   }
   .ig-bg { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
@@ -313,7 +325,7 @@
   .total-card .card-value { font-size: 2.4rem; color: #fff; }
   .total-card .card-sub { color: rgba(255,255,255,0.65); }
 
-  /* GHL CARD */
+  /* GHL / INFRA CARD */
   .ghl-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -468,7 +480,7 @@
 </head>
 <body>
 
-<!-- ââ LOGIN SCREEN ââ -->
+<!-- LOGIN SCREEN -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">Business<span>Hub</span></div>
@@ -478,7 +490,7 @@
       type="password"
       id="pw-input"
       class="login-input"
-      placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
+      placeholder="Enter password"
       onkeydown="if(event.key==='Enter') tryLogin()"
       autocomplete="current-password"
     />
@@ -492,19 +504,19 @@
   <div class="logo">Business<span>Hub</span></div>
   <div class="header-right">
     <div id="live-date"></div>
-    <button class="edit-btn" onclick="openModal()">âï¸ Update Metrics</button>
+    <button class="edit-btn" onclick="openModal()">Edit Metrics</button>
   </div>
 </header>
 
 <div class="main">
 
-  <!-- ââ API CREDITS & COSTS ââ -->
+  <!-- API CREDITS & COSTS -->
   <div>
-    <div class="section-title">ð¤ API Credits & Costs</div>
+    <div class="section-title">API Credits &amp; Costs</div>
     <div class="card-grid">
 
       <div class="card">
-        <span class="card-icon">ð£</span>
+        <span class="card-badge badge-purple">Claude</span>
         <div class="card-label">Anthropic / Claude</div>
         <div class="card-value" id="d-claude-spend">$0.00</div>
         <div class="card-sub" id="d-claude-tokens">0 tokens used</div>
@@ -512,7 +524,7 @@
       </div>
 
       <div class="card">
-        <span class="card-icon">ð¢</span>
+        <span class="card-badge badge-green">GPT</span>
         <div class="card-label">OpenAI</div>
         <div class="card-value" id="d-oai-spend">$0.00</div>
         <div class="card-sub" id="d-oai-tokens">0 tokens used</div>
@@ -520,16 +532,24 @@
       </div>
 
       <div class="card">
-        <span class="card-icon">â¡</span>
+        <span class="card-badge badge-blue">OR</span>
+        <div class="card-label">OpenRouter</div>
+        <div class="card-value" id="d-or-spend">$0.00</div>
+        <div class="card-sub" id="d-or-credits">0 credits used</div>
+        <div class="card-change change-neutral">This month</div>
+      </div>
+
+      <div class="card">
+        <span class="card-badge badge-yellow">Other</span>
         <div class="card-label">Other AI APIs</div>
         <div class="card-value" id="d-other-spend">$0.00</div>
-        <div class="card-sub" id="d-other-note">e.g. ElevenLabs, Midjourney</div>
+        <div class="card-sub">e.g. ElevenLabs, Midjourney</div>
         <div class="card-change change-neutral">This month</div>
       </div>
 
       <div class="total-card">
         <div>
-          <div class="card-label">ð° Total Monthly Spend</div>
+          <div class="card-label">Total Monthly Spend</div>
           <div class="card-value" id="d-total-spend">$0.00</div>
           <div class="card-sub" id="d-budget-remaining">Enter budget to track remaining</div>
         </div>
@@ -544,49 +564,47 @@
     </div>
   </div>
 
-  <!-- ââ SOCIAL MEDIA ââ -->
-  <!-- ── INFRASTRUCTURE ── -->
+  <!-- INFRASTRUCTURE -->
   <div>
-    <div class="section-title">🏗️ Infrastructure</div>
+    <div class="section-title">Infrastructure</div>
     <div class="card-grid-2">
 
       <div class="ghl-card">
         <div class="ghl-header">
-          <span style="font-size:1.3rem">🗄️</span>
           <span style="font-size:1rem;font-weight:700">Supabase</span>
           <span class="ghl-badge">DB</span>
         </div>
         <div class="ghl-grid">
-          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-users">—</div><div class="ghl-stat-lbl">Auth Users</div></div>
-          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-buckets">—</div><div class="ghl-stat-lbl">Storage Buckets</div></div>
-          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-rows">—</div><div class="ghl-stat-lbl">DB Rows (est.)</div></div>
-          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-api">—</div><div class="ghl-stat-lbl">API Requests</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-users">&mdash;</div><div class="ghl-stat-lbl">Auth Users</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-buckets">&mdash;</div><div class="ghl-stat-lbl">Storage Buckets</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-rows">&mdash;</div><div class="ghl-stat-lbl">DB Rows (est.)</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-sb-api">&mdash;</div><div class="ghl-stat-lbl">API Requests</div></div>
         </div>
       </div>
 
       <div class="ghl-card">
         <div class="ghl-header">
-          <span style="font-size:1.3rem">☁️</span>
           <span style="font-size:1rem;font-weight:700">Google Cloud</span>
           <span class="ghl-badge" style="background:#4285f4">GCP</span>
         </div>
         <div class="ghl-grid">
-          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-places">—</div><div class="ghl-stat-lbl">Places API Reqs</div></div>
-          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-maps">—</div><div class="ghl-stat-lbl">Maps API Reqs</div></div>
-          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-cost">—</div><div class="ghl-stat-lbl">Monthly Spend</div></div>
-          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-status">—</div><div class="ghl-stat-lbl">Billing Status</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-places">&mdash;</div><div class="ghl-stat-lbl">Places API Reqs</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-maps">&mdash;</div><div class="ghl-stat-lbl">Maps API Reqs</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-cost">&mdash;</div><div class="ghl-stat-lbl">Monthly Spend</div></div>
+          <div class="ghl-stat"><div class="ghl-stat-val" id="d-gc-status">&mdash;</div><div class="ghl-stat-lbl">Billing Status</div></div>
         </div>
       </div>
 
     </div>
   </div>
 
+  <!-- SOCIAL MEDIA -->
   <div>
-    <div class="section-title">ð± Social Media</div>
+    <div class="section-title">Social Media</div>
     <div class="card-grid-2">
 
       <div class="social-card">
-        <div class="social-icon-wrap ig-bg">ð¸</div>
+        <div class="social-icon-wrap ig-bg">IG</div>
         <div>
           <div class="social-name">Instagram</div>
           <div class="social-stats">
@@ -602,12 +620,12 @@
               <span class="social-stat-val" id="d-ig-reach">0</span>
               <span class="social-stat-lbl">Reach</span>
             </div>
-     .    </div>
+          </div>
         </div>
       </div>
 
       <div class="social-card">
-        <div class="social-icon-wrap fb-bg">ð¤</div>
+        <div class="social-icon-wrap fb-bg">FB</div>
         <div>
           <div class="social-name">Facebook</div>
           <div class="social-stats">
@@ -628,7 +646,7 @@
       </div>
 
       <div class="social-card">
-        <div class="social-icon-wrap li-bg">ð¼</div>
+        <div class="social-icon-wrap li-bg">LI</div>
         <div>
           <div class="social-name">LinkedIn</div>
           <div class="social-stats">
@@ -649,7 +667,7 @@
       </div>
 
       <div class="social-card">
-        <div class="social-icon-wrap tw-bg">ð</div>
+        <div class="social-icon-wrap tw-bg">X</div>
         <div>
           <div class="social-name">X / Twitter</div>
           <div class="social-stats">
@@ -672,14 +690,13 @@
     </div>
   </div>
 
-  <!-- ââ GHL ââ -->
+  <!-- GHL -->
   <div>
-    <div class="section-title">ð GoHighLevel (GHL)</div>
+    <div class="section-title">GoHighLevel (GHL)</div>
     <div class="card-grid-2">
 
       <div class="ghl-card">
         <div class="ghl-header">
-          <span style="font-size:1.3rem">ð¥</span>
           <span style="font-size:1rem;font-weight:700">Leads &amp; Contacts</span>
           <span class="ghl-badge">GHL</span>
         </div>
@@ -705,7 +722,6 @@
 
       <div class="ghl-card">
         <div class="ghl-header">
-          <span style="font-size:1.3rem">ð¬</span>
           <span style="font-size:1rem;font-weight:700">Conversations</span>
           <span class="ghl-badge">GHL</span>
         </div>
@@ -722,7 +738,8 @@
             <div class="ghl-stat-val" id="d-ghl-sms">0</div>
             <div class="ghl-stat-lbl">SMS Sent Today</div>
           </div>
-          <div class="ghl-stat-val" id="d-ghl-emails">0</div>
+          <div class="ghl-stat">
+            <div class="ghl-stat-val" id="d-ghl-emails">0</div>
             <div class="ghl-stat-lbl">Emails Sent Today</div>
           </div>
         </div>
@@ -731,16 +748,16 @@
     </div>
   </div>
 
-  <!-- ââ CHARTS ââ -->
+  <!-- WEEKLY TRENDS -->
   <div>
-    <div class="section-title">ð Weekly Trends</div>
+    <div class="section-title">Weekly Trends</div>
     <div class="chart-row">
       <div class="chart-card">
-        <h3>API Spend â Last 7 Days</h3>
+        <h3>API Spend &mdash; Last 7 Days</h3>
         <canvas id="spendChart" height="160"></canvas>
       </div>
       <div class="chart-card">
-        <h3>Social Followers â Last 7 Days</h3>
+        <h3>Social Followers &mdash; Last 7 Days</h3>
         <canvas id="followersChart" height="160"></canvas>
       </div>
     </div>
@@ -748,10 +765,10 @@
 
 </div><!-- /main -->
 
-<!-- ââ EDIT MODAL ââ -->
+<!-- EDIT MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
-    <h2>âï¸ Update Today's Metrics</h2>
+    <h2>Update Today's Metrics</h2>
 
     <div class="form-section">
       <h3>API Credits &amp; Costs</h3>
@@ -782,15 +799,6 @@
         </div>
       </div>
     </div>
-
-      <div class="api-card">
-        <div class="api-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🔀</div>
-        <div>
-          <div class="api-name">OpenRouter</div>
-          <div class="api-spend" id="d-or-spend">$0.00</div>
-          <div class="api-tokens" id="d-or-credits">0 credits used</div>
-        </div>
-      </div>
 
     <div class="form-section">
       <h3>Instagram</h3>
@@ -829,7 +837,7 @@
     </div>
 
     <div class="form-section">
-      <h3>GHL â Leads &amp; Contacts</h3>
+      <h3>GHL &mdash; Leads &amp; Contacts</h3>
       <div class="form-grid">
         <div class="form-group"><label>New Leads Today</label><input type="number" id="f-ghl-new-leads" placeholder="0"/></div>
         <div class="form-group"><label>Leads This Month</label><input type="number" id="f-ghl-month-leads" placeholder="0"/></div>
@@ -839,7 +847,7 @@
     </div>
 
     <div class="form-section">
-      <h3>GHL â Conversations</h3>
+      <h3>GHL &mdash; Conversations</h3>
       <div class="form-grid">
         <div class="form-group"><label>New Convs Today</label><input type="number" id="f-ghl-new-convs" placeholder="0"/></div>
         <div class="form-group"><label>Unread Messages</label><input type="number" id="f-ghl-unread" placeholder="0"/></div>
@@ -856,7 +864,7 @@
 </div>
 
 <script>
-// ââ PASSWORD ââ
+// --- PASSWORD ---
 // Change this to whatever password you want:
 const DASHBOARD_PASSWORD = 'business2024';
 
@@ -875,12 +883,11 @@ function tryLogin() {
   }
 }
 
-// Focus password field on load
 window.addEventListener('load', () => {
   document.getElementById('pw-input').focus();
 });
 
-// ââ DATE ââ
+// --- DATE ---
 function updateDate() {
   const now = new Date();
   const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
@@ -888,7 +895,7 @@ function updateDate() {
 }
 updateDate();
 
-// ââ STATE (in-memory) ââ
+// --- STATE ---
 const state = {
   claudeSpend: 0, claudeTokens: 0,
   oaiSpend: 0, oaiTokens: 0,
@@ -902,7 +909,7 @@ const state = {
   twFollowers: 0, twImpressions: 0, twLikes: 0,
   ghlNewLeads: 0, ghlMonthLeads: 0, ghlTotalContacts: 0, ghlOpps: 0,
   ghlNewConvs: 0, ghlUnread: 0, ghlSms: 0, ghlEmails: 0,
-  // Week history (last 7 days spend totals â seed with 0s)
+  // Week history (last 7 days spend totals - seed with 0s)
   weekSpend: [0,0,0,0,0,0,0],
   weekFollowers: [0,0,0,0,0,0,0],
 };
@@ -911,7 +918,7 @@ function fmt(n) { return parseFloat(n||0).toLocaleString(); }
 function fmtDollar(n) { return '$' + parseFloat(n||0).toFixed(2); }
 
 function renderDashboard() {
-  // API
+  // API costs
   set('d-claude-spend', fmtDollar(state.claudeSpend));
   set('d-claude-tokens', fmt(state.claudeTokens) + ' tokens used');
   set('d-oai-spend', fmtDollar(state.oaiSpend));
@@ -920,15 +927,16 @@ function renderDashboard() {
   set('d-or-spend', fmtDollar(state.orSpend));
   set('d-or-credits', fmt(state.orCredits) + ' credits used');
   // Supabase
-  set('d-sb-users', state.sbUsers != null ? fmt(state.sbUsers) : '—');
-  set('d-sb-buckets', state.sbBuckets != null ? fmt(state.sbBuckets) : '—');
-  set('d-sb-rows', state.sbRows != null ? fmt(state.sbRows) : '—');
-  set('d-sb-api', state.sbApi != null ? fmt(state.sbApi) : '—');
+  set('d-sb-users',   state.sbUsers   != null ? fmt(state.sbUsers)   : '\u2014');
+  set('d-sb-buckets', state.sbBuckets != null ? fmt(state.sbBuckets) : '\u2014');
+  set('d-sb-rows',    state.sbRows    != null ? fmt(state.sbRows)    : '\u2014');
+  set('d-sb-api',     state.sbApi     != null ? fmt(state.sbApi)     : '\u2014');
   // Google Cloud
-  set('d-gc-places', state.gcPlaces != null ? fmt(state.gcPlaces) : '—');
-  set('d-gc-maps', state.gcMaps != null ? fmt(state.gcMaps) : '—');
-  set('d-gc-cost', state.gcCost != null ? '$'+parseFloat(state.gcCost).toFixed(2) : '—');
-  set('d-gc-status', state.gcStatus || '—');
+  set('d-gc-places', state.gcPlaces != null ? fmt(state.gcPlaces) : '\u2014');
+  set('d-gc-maps',   state.gcMaps   != null ? fmt(state.gcMaps)   : '\u2014');
+  set('d-gc-cost',   state.gcCost   != null ? '$' + parseFloat(state.gcCost).toFixed(2) : '\u2014');
+  set('d-gc-status', state.gcStatus || '\u2014');
+  // Total spend
   const total = +state.claudeSpend + +state.oaiSpend + +state.otherSpend + +state.orSpend;
   set('d-total-spend', fmtDollar(total));
   if (state.budget > 0) {
@@ -967,7 +975,7 @@ function set(id, val) {
   if (el) el.textContent = val;
 }
 
-// ââ MODAL ââ
+// --- MODAL ---
 function openModal() {
   fillForm();
   document.getElementById('modal').classList.add('open');
@@ -1012,8 +1020,7 @@ function saveMetrics() {
     const el = document.getElementById(id);
     if (el) state[key] = el.value;
   }
-  // Update today's chart entry
-  const total = +state.claudeSpend + +state.oaiSpend + +state.otherSpend;
+  const total = +state.claudeSpend + +state.oaiSpend + +state.otherSpend + +state.orSpend;
   state.weekSpend[6] = total;
   const totalFollowers = +state.igFollowers + +state.fbFollowers + +state.liFollowers + +state.twFollowers;
   state.weekFollowers[6] = totalFollowers;
@@ -1022,7 +1029,7 @@ function saveMetrics() {
   closeModal();
 }
 
-// ââ CHARTS ââ
+// --- CHARTS ---
 const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 let spendChart, followersChart;
 
@@ -1084,17 +1091,16 @@ function updateCharts() {
   followersChart.update();
 }
 
-// ââ CLOSE MODAL ON OVERLAY CLICK ââ
+// --- CLOSE MODAL ON OVERLAY CLICK ---
 document.getElementById('modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
 
-// ââ INIT ââ
+// --- INIT ---
 renderDashboard();
 initCharts();
 
-
-// ── LIVE DATA FETCH ──
+// --- LIVE DATA FETCH ---
 async function fetchLiveData() {
   try {
     const [clRes, oaRes, ghRes, orRes, sbRes, gcRes] = await Promise.allSettled([
@@ -1105,23 +1111,42 @@ async function fetchLiveData() {
       fetch('/api/supabase').then(r=>r.json()).catch(e=>({error:e.message})),
       fetch('/api/google').then(r=>r.json()).catch(e=>({error:e.message})),
     ]);
-    const cl = clRes.value||{}, oa = oaRes.value||{}, gh = ghRes.value||{}, or = orRes.value||{}, sb = sbRes.value||{}, gc = gcRes.value||{};
-    if (!cl.error && cl.cost_usd!=null) { state.claudeSpend=+cl.cost_usd.toFixed(4); state.claudeTokens=cl.total_tokens||0; }
-    if (!oa.error && oa.cost_usd!=null) { state.oaiSpend=+oa.cost_usd.toFixed(4); }
-    if (!gh.error) {
-      state.ghlTotalContacts=gh.totalContacts||0;
-      state.ghlNewLeads=gh.newLeadsToday||0;
-      state.ghlMonthLeads=gh.monthLeads||0;
-      state.ghlNewConvs=gh.newConvsToday||0;
-      state.ghlUnread=gh.unread||0;
+    const cl = clRes.value||{}, oa = oaRes.value||{}, gh = ghRes.value||{},
+          or = orRes.value||{}, sb = sbRes.value||{}, gc = gcRes.value||{};
+
+    if (!cl.error && cl.cost_usd != null) {
+      state.claudeSpend  = +cl.cost_usd.toFixed(4);
+      state.claudeTokens = cl.total_tokens || 0;
     }
-    if (!or.error && or.cost_usd!=null) { state.orSpend=+or.cost_usd.toFixed(4); state.orCredits=or.usage_credits||0; }
-    if (sb && !sb.error) { state.sbUsers=sb.totalUsers??0; state.sbBuckets=sb.bucketCount??0; state.sbRows=sb.totalRows??null; state.sbApi=sb.apiRequests??null; }
-    if (gc && !gc.error) { state.gcPlaces=gc.placesRequests??null; state.gcMaps=gc.mapsRequests??null; state.gcCost=gc.monthlyCost??null; state.gcStatus=gc.billingEnabled?'Active':(gc.note?'Setup needed':'—'); }
+    if (!oa.error && oa.cost_usd != null) {
+      state.oaiSpend = +oa.cost_usd.toFixed(4);
+    }
+    if (!gh.error) {
+      state.ghlTotalContacts = gh.totalContacts || 0;
+      state.ghlNewLeads      = gh.newLeadsToday  || 0;
+      state.ghlMonthLeads    = gh.monthLeads     || 0;
+      state.ghlNewConvs      = gh.newConvsToday  || 0;
+      state.ghlUnread        = gh.unread         || 0;
+    }
+    if (!or.error && or.cost_usd != null) {
+      state.orSpend   = +or.cost_usd.toFixed(4);
+      state.orCredits = or.usage_credits || 0;
+    }
+    if (sb && !sb.error) {
+      state.sbUsers   = sb.totalUsers   ?? 0;
+      state.sbBuckets = sb.bucketCount  ?? 0;
+      state.sbRows    = sb.totalRows    ?? null;
+      state.sbApi     = sb.apiRequests  ?? null;
+    }
+    if (gc && !gc.error) {
+      state.gcPlaces = gc.placesRequests ?? null;
+      state.gcMaps   = gc.mapsRequests   ?? null;
+      state.gcCost   = gc.monthlyCost    ?? null;
+      state.gcStatus = gc.billingEnabled ? 'Active' : (gc.note ? 'Setup needed' : '\u2014');
+    }
+
     renderDashboard();
-    const ts = document.getElementById('live-ts');
-    if (ts) ts.textContent = 'Live data as of '+new Date().toLocaleTimeString();
-  } catch(e) { console.error('fetchLiveData:',e); }
+  } catch(e) { console.error('fetchLiveData:', e); }
 }
 fetchLiveData();
 </script>
